@@ -15,12 +15,12 @@ int main() {
     if (query == "searchColumn") {
       cout << "Enter a column: ";
       cin >> column;
-      cout << (searchKey('c', column) != -1 ? "Yes" : "No") << endl;
+      cout << (searchKey('c', column) != -2 ? "Yes, it is in the database" : "No, it is not in the database") << endl;
     }
     else if (query == "searchID") {
       cout << "Enter an ID: ";
       cin >> id;
-      cout << (searchKey('h', id) != -1 ? "Yes" : "No") << endl;
+      cout << (searchKey('h', id) != -2 ? "Yes, it is in the database" : "No, it is not in the database") << endl;
     }
     else if (query == "searchValue") {
       cout << "Enter a column and an ID: ";

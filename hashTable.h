@@ -4,6 +4,7 @@
 #include "hashFunction.h"
 using namespace std;
 
+const int MAX = 1e9;
 struct Node {
   string key;
   int intPointer = -1;
@@ -18,7 +19,7 @@ struct HashTable {
 int col, row;
 HashTable* columns;
 HashTable* hashTable;
-string keys[100];
+string keys[MAX];
 
 Node* createNode (string key) {
   Node* newNode = new Node();
@@ -28,17 +29,17 @@ Node* createNode (string key) {
 
 void insertKey(char type, string key, int i) {
   if (type == 'c') {
-      int index = JSHash(key) % 100;
-      while (columns[index].count == 1) index = (index+1) % 100;
+      int index = JSHash(key) % MAX;
+      while (columns[index].count == 1) index = (index+1) % MAX;
       Node* newNode = createNode(key);
       columns[index].head = newNode;
       columns[index].count = 1;
       columns[index].head->intPointer = i;
   }
   else {
-    int index = JSHash(key) % 100;
+    int index = JSHash(key) % MAX;
    // cout << index << " " << key;
-    while (hashTable[index].count == 1) index = (index+1) % 100;
+    while (hashTable[index].count == 1) index = (index+1) % MAX;
     Node* newNode = createNode(key);
     hashTable[index].head = newNode;
     hashTable[index].count = 1;
@@ -46,23 +47,25 @@ void insertKey(char type, string key, int i) {
 }
 
 void insertRow(string value[], string id) {
-  int index = JSHash(id) % 100;
-  while (hashTable[index].head->key != id) index = (index+1) % 100;
+  int index = JSHash(id) % MAX;
+  while (hashTable[index].head->key != id) index = (index+1) % MAX;
   for (int i = 1; i < col; i++) hashTable[index].head->arrPointer.push_back(value[i]); 
 }
 
 int searchKey(char type, string key) {
   if (type == 'h') {
-    int index = JSHash(key) % 100;
-    while (index < 100 && hashTable[index].head->key != key) index = (index + 1) % 100;
+    int index = JSHash(key) % MAX;
+    if (hashTable[index].count == 0) return -2;
+    while (index < MAX && hashTable[index].head->key != key) index = (index + 1) % MAX;
     if (hashTable[index].head->key == key) return index;
-    return -1;
+    return -2;
   }
   else {
-    int index = JSHash(key) % 100;
-    while (index < 100 && columns[index].head->key != key) index = (index + 1) % 100;
+    int index = JSHash(key) % MAX;
+    if (columns[index].count == 0) return -2;
+    while (index < MAX && columns[index].head->key != key) index = (index + 1) % MAX;
     if (columns[index].head->key == key) return columns[index].head->intPointer-1;
-    return -1;
+    return -2;
   }
 
 }
@@ -81,9 +84,7 @@ void printHashTable() {
   for (int i = 0; i < 100; i++) {
     if (hashTable[i].count == 0 or !hashTable[i].head) continue;
     cout << hashTable[i].head->key << " || ";
-    for (int j = 0; j < col-1; j++) {
-      cout << hashTable[i].head->arrPointer[j] << " || ";
-    }
+    for (int j = 0; j < col-1; j++) cout << hashTable[i].head->arrPointer[j] << " || ";
     cout << hashTable[i].head->arrPointer[col-1] << endl;
   }
 }
@@ -91,8 +92,8 @@ void printHashTable() {
 void createHashTable() {
   cout << "Enter the number of columns and rows of your database: ";
   cin >> col >> row;
-  columns = new HashTable[col];
-  hashTable = new HashTable[row];
+  columns = new HashTable[MAX];
+  hashTable = new HashTable[MAX];
   cout << "Enter the names of the columns in one row. The first column must be the unique ID. For example: StudentID FirstName LastName Grade" << endl;
   for (int i = 0; i < col; i++) {
     cin >> keys[i];
@@ -108,5 +109,4 @@ void createHashTable() {
     for (int j = 1; j < col;  j++) cin >> values[j];
     insertRow(values, id);
   }
-  printHashTable();
 }
